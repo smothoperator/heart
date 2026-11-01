@@ -1,0 +1,81 @@
+import http.server
+import socketserver
+import webbrowser
+
+PORT = 8080
+Handler = http.server.SimpleHTTPRequestHandler
+
+# HTML-код с CSS для отрисовки красивого пульсирующего сердечка
+html_content = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Для тебя!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .heart {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: #ff3366;
+            transform: rotate(-45deg);
+            animation: heartbeat 1.2s infinite;
+            box-shadow: 0 0 40px #ff3366;
+        }
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #ff3366;
+            border-radius: 50%;
+        }
+        .heart::before {
+            top: -50px;
+            left: 0;
+        }
+        .heart::after {
+            top: 0;
+            left: 50px;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1) rotate(-45deg); }
+            20% { transform: scale(1.25) rotate(-45deg); }
+            40% { transform: scale(1.1) rotate(-45deg); }
+            60% { transform: scale(1.35) rotate(-45deg); }
+            80% { transform: scale(1) rotate(-45deg); }
+            100% { transform: scale(1) rotate(-45deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="heart"></div>
+</body>
+</html>
+"""
+
+# Записываем HTML во временный файл
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+# Запускаем локальный веб-сервер
+with socketserver.TCPServer(("", PORT), Handler) as httpd:
+    url = f"http://localhost:{PORT}"
+    print(f"Сервер запущен! Ссылка для открытия: {url}")
+    print("Чтобы остановить сервер, нажмите Ctrl+C в терминале.")
+    
+    # Автоматически открываем эту ссылку в браузере
+    webbrowser.open(url)
+    
+    # Ожидаем переходов по ссылке
+    httpd.serve_forever()
